@@ -22,6 +22,11 @@ const verifyJWT = (req, res, next) => {
             return res.status(401).send({ error: true, message: "unauthorized access" });
         }
         req.decoded = decoded;
+
+        const userType = decoded.userType;
+        if (userType !== "admin") {
+            return res.status(403).send({ error: true, message: "Access forbidden" });
+        }
         next();
     });
 };
@@ -44,6 +49,7 @@ async function run() {
         await client.connect(); // delete if vercel
 
         const classCollection = client.db("summerCamp12").collection("classes");
+        const userCollection = client.db("summerCamp12").collection("users");
 
         app.post("/jwt", (req, res) => {
             const user = req.body;
@@ -71,6 +77,44 @@ async function run() {
             const figures = req.body;
             const result = await classCollection.insertOne(figures);
             res.send(result);
+        });
+
+        // Make Instructor route
+        app.post("/admin/make-instructor/:userId", verifyJWT, async (req, res) => {
+            try {
+                const { userId } = req.params;
+                // Update the user role as instructor in the MongoDB collection based on the provided userId
+                const result = await userCollection.updateOne(
+                    { _id: ObjectId(userId) },
+                    { $set: { role: "instructor" } }
+                );
+                if (result.modifiedCount === 0) {
+                    return res.status(404).send({ error: true, message: "User not found" });
+                }
+                res.send({ message: "User role updated to instructor" });
+            } catch (error) {
+                console.error(error);
+                res.status(500).send({ error: true, message: "Internal server error" });
+            }
+        });
+
+        // Make Admin route
+        app.post("/admin/make-admin/:userId", verifyJWT, async (req, res) => {
+            try {
+                const { userId } = req.params;
+                // Update the user role as admin in the MongoDB collection based on the provided userId
+                const result = await userCollection.updateOne(
+                    { _id: ObjectId(userId) },
+                    { $set: { role: "admin" } }
+                );
+                if (result.modifiedCount === 0) {
+                    return res.status(404).send({ error: true, message: "User not found" });
+                }
+                res.send({ message: "User role updated to admin" });
+            } catch (error) {
+                console.error(error);
+                res.status(500).send({ error: true, message: "Internal server error" });
+            }
         });
 
         await client.db("admin").command({ ping: 1 });
