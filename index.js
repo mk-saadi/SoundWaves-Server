@@ -79,42 +79,17 @@ async function run() {
             res.send(result);
         });
 
-        // Make Instructor route
-        app.post("/admin/make-instructor/:userId", verifyJWT, async (req, res) => {
-            try {
-                const { userId } = req.params;
-                // Update the user role as instructor in the MongoDB collection based on the provided userId
-                const result = await userCollection.updateOne(
-                    { _id: ObjectId(userId) },
-                    { $set: { role: "instructor" } }
-                );
-                if (result.modifiedCount === 0) {
-                    return res.status(404).send({ error: true, message: "User not found" });
-                }
-                res.send({ message: "User role updated to instructor" });
-            } catch (error) {
-                console.error(error);
-                res.status(500).send({ error: true, message: "Internal server error" });
-            }
-        });
-
-        // Make Admin route
-        app.post("/admin/make-admin/:userId", verifyJWT, async (req, res) => {
-            try {
-                const { userId } = req.params;
-                // Update the user role as admin in the MongoDB collection based on the provided userId
-                const result = await userCollection.updateOne(
-                    { _id: ObjectId(userId) },
-                    { $set: { role: "admin" } }
-                );
-                if (result.modifiedCount === 0) {
-                    return res.status(404).send({ error: true, message: "User not found" });
-                }
-                res.send({ message: "User role updated to admin" });
-            } catch (error) {
-                console.error(error);
-                res.status(500).send({ error: true, message: "Internal server error" });
-            }
+        // users
+        app.post("/users", (req, res) => {
+            const user = req.body;
+            userCollection
+                .insertOne(user)
+                .then((result) => {
+                    res.send(result);
+                })
+                .catch((error) => {
+                    res.status(500).send(error);
+                });
         });
 
         await client.db("admin").command({ ping: 1 });
@@ -131,3 +106,42 @@ app.get("/", (req, res) => {
 app.listen(port, () => {
     console.log(`summer camp was live on port ${port}`);
 });
+
+/* --------------------------------- ignore --------------------------------- */
+// // Make Instructor route
+// app.post("/admin/make-instructor/:userId", verifyJWT, async (req, res) => {
+//     try {
+//         const { userId } = req.params;
+//         // Update the user role as instructor in the MongoDB collection based on the provided userId
+//         const result = await userCollection.updateOne(
+//             { _id: ObjectId(userId) },
+//             { $set: { role: "instructor" } }
+//         );
+//         if (result.modifiedCount === 0) {
+//             return res.status(404).send({ error: true, message: "User not found" });
+//         }
+//         res.send({ message: "User role updated to instructor" });
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).send({ error: true, message: "Internal server error" });
+//     }
+// });
+
+// // Make Admin route
+// app.post("/admin/make-admin/:userId", verifyJWT, async (req, res) => {
+//     try {
+//         const { userId } = req.params;
+//         // Update the user role as admin in the MongoDB collection based on the provided userId
+//         const result = await userCollection.updateOne(
+//             { _id: ObjectId(userId) },
+//             { $set: { role: "admin" } }
+//         );
+//         if (result.modifiedCount === 0) {
+//             return res.status(404).send({ error: true, message: "User not found" });
+//         }
+//         res.send({ message: "User role updated to admin" });
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).send({ error: true, message: "Internal server error" });
+//     }
+// });
