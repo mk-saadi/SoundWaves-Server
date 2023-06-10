@@ -10,38 +10,11 @@ const port = process.env.PORT || 12000;
 app.use(cors());
 app.use(express.json());
 
-// const verifyJWT = (req, res, next) => {
-//     const authorization = req.headers.authorization;
-//     if (!authorization) {
-//         return res.status(401).send({ error: true, message: "unauthorized access" });
-//     }
-//     const token = authorization.split(" ")[1];
-
-//     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
-//         if (err) {
-//             return res.status(401).send({ error: true, message: "unauthorized access" });
-//         }
-//         req.decoded = decoded;
-
-//         const userType = decoded.userType;
-//         if (userType !== "admin") {
-//             return res.status(403).send({ error: true, message: "Access forbidden" });
-//         }
-
-//         // const { userType } = req.decoded;
-//         // if (userType !== "admin" && userType !== "instructor") {
-//         //     return res.status(403).send({ error: true, message: "Access forbidden" });
-//         // }
-//         next();
-//     });
-// };
-
 const verifyJWT = (req, res, next) => {
     const authorization = req.headers.authorization;
     if (!authorization) {
         return res.status(401).send({ error: true, message: "unauthorized access" });
     }
-    // bearer token
     const token = authorization.split(" ")[1];
 
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
@@ -49,11 +22,6 @@ const verifyJWT = (req, res, next) => {
             return res.status(401).send({ error: true, message: "unauthorized access" });
         }
         req.decoded = decoded;
-
-        // const { userType } = req.decoded;
-        // if (userType !== "admin" && userType !== "instructor") {
-        //     return res.status(403).send({ error: true, message: "Access forbidden" });
-        // }
         next();
     });
 };
@@ -166,7 +134,6 @@ async function run() {
         });
 
         // instructor
-
         app.get("/users/instructor/:email", verifyJWT, async (req, res) => {
             const email = req.params.email;
             console.log(email);
@@ -209,42 +176,3 @@ app.get("/", (req, res) => {
 app.listen(port, () => {
     console.log(`summer camp was live on port ${port}`);
 });
-
-/* --------------------------------- ignore --------------------------------- */
-// // Make Instructor route
-// app.post("/admin/make-instructor/:userId", verifyJWT, async (req, res) => {
-//     try {
-//         const { userId } = req.params;
-//         // Update the user role as instructor in the MongoDB collection based on the provided userId
-//         const result = await userCollection.updateOne(
-//             { _id: ObjectId(userId) },
-//             { $set: { role: "instructor" } }
-//         );
-//         if (result.modifiedCount === 0) {
-//             return res.status(404).send({ error: true, message: "User not found" });
-//         }
-//         res.send({ message: "User role updated to instructor" });
-//     } catch (error) {
-//         console.error(error);
-//         res.status(500).send({ error: true, message: "Internal server error" });
-//     }
-// });
-
-// // Make Admin route
-// app.post("/admin/make-admin/:userId", verifyJWT, async (req, res) => {
-//     try {
-//         const { userId } = req.params;
-//         // Update the user role as admin in the MongoDB collection based on the provided userId
-//         const result = await userCollection.updateOne(
-//             { _id: ObjectId(userId) },
-//             { $set: { role: "admin" } }
-//         );
-//         if (result.modifiedCount === 0) {
-//             return res.status(404).send({ error: true, message: "User not found" });
-//         }
-//         res.send({ message: "User role updated to admin" });
-//     } catch (error) {
-//         console.error(error);
-//         res.status(500).send({ error: true, message: "Internal server error" });
-//     }
-// });
