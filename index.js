@@ -103,9 +103,9 @@ async function run() {
             const cursor = userCollection.find();
             const result = await cursor.toArray();
             res.send(result);
-            console.log(result);
         });
 
+        // admin routes api
         app.get("/users/admin/:email", verifyJWT, async (req, res) => {
             const email = req.params.email;
 
@@ -133,10 +133,9 @@ async function run() {
             res.send(result);
         });
 
-        // instructor
+        // instructor routes api
         app.get("/users/instructor/:email", verifyJWT, async (req, res) => {
             const email = req.params.email;
-            console.log(email);
 
             if (req.decoded.email !== email) {
                 res.send({ instructor: true });
