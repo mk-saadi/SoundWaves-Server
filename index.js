@@ -45,6 +45,7 @@ async function run() {
 
         const classCollection = client.db("summerCamp12").collection("classes");
         const userCollection = client.db("summerCamp12").collection("users");
+        const selectedCollection = client.db("summerCamp12").collection("selected");
 
         // middleware
         app.post("/jwt", (req, res) => {
@@ -164,6 +165,13 @@ async function run() {
             };
 
             const result = await userCollection.updateOne(filter, updateDoc);
+            res.send(result);
+        });
+
+        // selected class
+        app.post("/selected", async (req, res) => {
+            const select = req.body;
+            const result = await selectedCollection.insertOne(select);
             res.send(result);
         });
 
