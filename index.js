@@ -88,19 +88,22 @@ async function run() {
         });
 
         // users
-        app.post("/users", (req, res) => {
+        app.post("/users", async (req, res) => {
             const user = req.body;
-            userCollection
-                .insertOne(user)
-                .then((result) => {
-                    res.send(result);
-                })
-                .catch((error) => {
-                    res.status(500).send(error);
-                });
+            // const select = req.body;
+            const result = await userCollection.insertOne(user);
+            res.send(result);
+            // userCollection
+            //     .insertOne(user)
+            //     .then((result) => {
+            //         res.send(result);
+            //     })
+            //     .catch((error) => {
+            //         res.status(500).send(error);
+            //     });
         });
 
-        app.get("/users", verifyJWT, verifyAdmin, async (req, res) => {
+        app.get("/users", verifyJWT, async (req, res) => {
             const cursor = userCollection.find();
             const result = await cursor.toArray();
             res.send(result);
@@ -183,6 +186,13 @@ async function run() {
         app.post("/selected", async (req, res) => {
             const select = req.body;
             const result = await selectedCollection.insertOne(select);
+            res.send(result);
+        });
+
+        app.delete("/selected/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await selectedCollection.deleteOne(query);
             res.send(result);
         });
 
