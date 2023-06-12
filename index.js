@@ -169,6 +169,17 @@ async function run() {
         });
 
         // selected class
+        app.get("/selected", async (req, res) => {
+            let query = {};
+
+            if (req.query?.email) {
+                query = { email: req.query.email };
+            }
+
+            const result = await selectedCollection.find(query).toArray();
+            res.send(result);
+        });
+
         app.post("/selected", async (req, res) => {
             const select = req.body;
             const result = await selectedCollection.insertOne(select);
