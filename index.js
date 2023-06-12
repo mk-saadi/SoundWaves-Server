@@ -147,6 +147,12 @@ async function run() {
             res.send(result);
         });
 
+        app.get("/users/instructor", async (req, res) => {
+            const cursor = userCollection.find({ role: "instructor" });
+            const result = await cursor.toArray();
+            res.send(result);
+        });
+
         app.patch("/users/instructor/:id", async (req, res) => {
             const id = req.params.id;
 
